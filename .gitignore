@@ -1,0 +1,21 @@
+# Fichiers binaires et exécutables
+loganalyzer
+*.exe
+
+# Fichiers de test et rapports
+TESTS_RAPPORT.md
+demo.sh
+test_*.json
+*_test_*.json
+test_logs/
+final_test/
+rapports/
+
+# Fichiers de configuration d'exemple
+example_config.json
+
+# Fichiers générés
+*_results.json
+
+# Dépendances Go
+go.sum 
