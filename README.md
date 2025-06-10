@@ -48,24 +48,118 @@ loganalyzer/
 ### Compilation
 
 ```bash
-
 git clone <repository-url>
 cd loganalyzer
 
-
 go mod tidy
 
-
 go build -o loganalyzer .
-
 
 go install .
 ```
 
+## 📝 Configuration
 
+Format JSON avec tableau de logs :
 
+```json
+[
+  {
+    "id": "web-server",
+    "path": "/var/log/nginx/access.log",
+    "type": "nginx"
+  },
+  {
+    "id": "app-backend",
+    "path": "/var/log/app/application.log",
+    "type": "application"
+  }
+]
+```
 
+**Champs requis :** `id` (identifiant unique), `path` (chemin fichier), `type` (type de log)
 
+## 🔧 Utilisation
 
+### Commande analyze
 
+```bash
+# Analyse basique
+./loganalyzer analyze --config example_config.json
 
+# Avec export et filtrage
+./loganalyzer analyze -c config.json -o results.json --status OK
+./loganalyzer analyze -c config.json -o results.json --status FAILED
+
+# Avec horodatage automatique
+./loganalyzer analyze -c config.json -o results.json --timestamp
+```
+
+### Commande add-log
+
+```bash
+# Ajouter un log
+./loganalyzer add-log --id web-logs --path /var/log/nginx.log --type nginx --file config.json
+
+# Créer nouvelle configuration
+./loganalyzer add-log --id app-log --path /tmp/app.log --type application --file new_config.json
+```
+
+**Options :** `--config/-c` (fichier config), `--output/-o` (sortie JSON), `--status` (filtre OK/FAILED), `--timestamp` (horodatage)
+
+## 📊 Format de sortie
+
+```json
+[
+  {
+    "id": "web-server",
+    "status": "OK"
+  },
+  {
+    "id": "app-backend",
+    "status": "FAILED",
+    "error": "Erreur lors de l'analyse du log app-backend"
+  }
+]
+```
+
+**Statuts :** `OK` (succès), `FAILED` (erreur avec détails)
+
+## 🐛 Dépannage
+
+**Fichier config introuvable :**
+
+```bash
+ls -la config.json  # Vérifier existence
+./loganalyzer analyze --config /chemin/absolu/config.json
+```
+
+**Statut invalide :** Utiliser `--status OK` ou `--status FAILED` (respecter la casse)
+
+**ID dupliqué :**
+
+```bash
+cat config.json | grep -o '"id": "[^"]*"'  # Lister IDs existants
+```
+
+## 🔧 Développement
+
+```bash
+go fmt ./...                              # Formatage
+go vet ./...                              # Vérification
+go test ./...                             # Tests
+go build -ldflags "-s -w" -o loganalyzer . # Build optimisé
+```
+
+**Extensions :** Nouveaux types d'erreurs (`internal/analyzer/errors.go`), nouvelles commandes (`cmd/`), formats d'export (`internal/reporter/`)
+
+## 📈 Performance
+
+- **Concurrence** : Goroutines pour traitement parallèle efficace
+- **Mémoire** : Collecte résultats via channels sans stockage excessif
+- **I/O** : Création répertoires à la demande
+- **Démarrage** : < 50ms, analyse proportionnelle au fichier le plus lent
+
+## 📄 Licence
+
+Projet TP académique - Go et programmation concurrente.
